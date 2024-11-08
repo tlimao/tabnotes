@@ -1,37 +1,45 @@
+import FontAwesome from '@expo/vector-icons/build/FontAwesome';
 import { Tabs } from 'expo-router';
-import React from 'react';
+import { NotesContext, NotesCubit } from '../context/notes/state/notes.cubit';
+import { useEffect, useMemo } from 'react';
 
-import { TabBarIcon } from '@/components/navigation/TabBarIcon';
-import { Colors } from '@/constants/Colors';
-import { useColorScheme } from '@/hooks/useColorScheme';
+export default function TabsLayout() {
 
-export default function TabLayout() {
-  const colorScheme = useColorScheme();
+  const notesCubit = useMemo(() => new NotesCubit([]), []);
 
+  useEffect(() => {
+    // Função para carregar as notas armazenadas localmente
+    const loadNotes = async () => {
+      await notesCubit.loadNotes();
+    };
+
+    loadNotes();
+  }, [notesCubit]);
+  
   return (
-    <Tabs
-      screenOptions={{
-        tabBarActiveTintColor: Colors[colorScheme ?? 'light'].tint,
-        headerShown: false,
-      }}>
-      <Tabs.Screen
-        name="index"
-        options={{
-          title: 'Home',
-          tabBarIcon: ({ color, focused }) => (
-            <TabBarIcon name={focused ? 'home' : 'home-outline'} color={color} />
-          ),
-        }}
-      />
-      <Tabs.Screen
-        name="explore"
-        options={{
-          title: 'Explore',
-          tabBarIcon: ({ color, focused }) => (
-            <TabBarIcon name={focused ? 'code-slash' : 'code-slash-outline'} color={color} />
-          ),
-        }}
-      />
-    </Tabs>
-  );
+    <NotesContext.Provider value={notesCubit}>
+        <Tabs screenOptions={{ 
+            title: "Tab notes",
+            tabBarActiveTintColor: 'black-gray',
+            tabBarInactiveBackgroundColor: 'light-gray'
+          }}>
+          <Tabs.Screen
+            name="(home)"
+            options={{ 
+              title: "Home",
+              headerShown: false,
+              tabBarIcon: ({ color }) => <FontAwesome size={30} name="check-circle-o" color={color} />
+            }}
+          />
+          <Tabs.Screen
+            name="(notes)"
+            options={{ 
+              title: "My notes",
+              headerShown: false,
+              tabBarIcon: ({ color }) => <FontAwesome size={30} name="sticky-note-o" color={color} />
+            }}
+          />
+        </Tabs>
+      </NotesContext.Provider>
+    );
 }
